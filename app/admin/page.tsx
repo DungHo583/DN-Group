@@ -1,9 +1,16 @@
-'use client'
+"use client";
 
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
 
 export default function Home() {
+  const { data: session } = useSession();
+  if (!session) {
+    return redirect("/admin/login");
+  }
+
   const notify = () => toast("Wow so easy !");
 
   return (

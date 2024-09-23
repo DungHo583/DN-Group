@@ -11,6 +11,15 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 1 * 24 * 60 * 60, // 1 day
   },
+  callbacks: {
+    async session({ session, token }) {
+      return session
+    },
+
+    async jwt({ token, account }) {
+      return token
+    }
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -19,13 +28,17 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+        const findAccount = await prisma.userAccount.findFirst({ where: { userName: credentials?.username } })
 
-        if (user) {
-          return user
-        } else {
+        if (!findAccount) {
           return null
         }
+
+        if (findAccount.hashPassword != credentials?.password) {
+          return null
+        }
+
+        return findAccount
       },
     })
   ],
