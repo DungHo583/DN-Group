@@ -1,12 +1,12 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { getAuthSession } from "@/lib/auth";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function Home() {
-  const { data: session } = useSession();
+export default async function Home() {
+  const session = await getAuthSession();
   if (!session) {
     return redirect("/admin/login");
   }

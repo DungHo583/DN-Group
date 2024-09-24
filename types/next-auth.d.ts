@@ -1,9 +1,12 @@
-import NextAuth from "next-auth"
+import NextAuth, { DefaultUser } from "next-auth"
 
 declare module "next-auth" {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
    */
+  interface UserAccount extends DefaultUser {
+
+  }
   interface Session {
     user: {
       /** The user's postal address. */
@@ -13,7 +16,7 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
-  interface jwt {
+  interface JWT extends DefaultUser {
 
   }
 }
