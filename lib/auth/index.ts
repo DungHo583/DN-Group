@@ -13,16 +13,23 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
+      console.log("log check session ===", session);
+      console.log("log check token ===", token);
+
       return session
     },
 
     async jwt({ token, account }) {
+      console.log("log check token jwt ===", token);
+      console.log("log check account jwt ===", account);
+
       return token
     }
   },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      id: "login",
+      name: "login",
       credentials: {
         username: { label: "UserName", type: "text" },
         password: { label: "Password", type: "password" }
@@ -30,12 +37,14 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         const findAccount = await prisma.userAccount.findFirst({ where: { userName: credentials?.username } })
 
+        console.log("log check find account ===", findAccount);
+
         if (!findAccount) {
-          return null
+          throw new Error("Account not found")
         }
 
         if (findAccount.hashPassword != credentials?.password) {
-          return null
+          throw new Error("Username or Password is wrong!")
         }
 
         return findAccount

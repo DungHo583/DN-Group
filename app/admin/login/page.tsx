@@ -23,12 +23,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   username: z
     .string()
-    .min(5)
-    .max(30)
+    .min(3)
+    .max(15)
     .trim()
     .refine((value) => value.trim() !== "", {
       message: "Tên phòng họp không được để trống",
@@ -44,6 +46,8 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "all",
@@ -53,9 +57,22 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("check submit ====", values);
-  }
+  const onSubmit = form.handleSubmit(
+    async (values: z.infer<typeof formSchema>) => {
+      try {
+        const loginResult = await signIn("login", {
+          username: values.username,
+          password: values.password,
+        });
+
+        if (loginResult) {
+          router.push("/admin");
+        }
+      } catch (error) {
+        console.log("error login ====", error);
+      }
+    }
+  );
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
@@ -98,7 +115,9 @@ export default function LoginPage() {
                 )}
               />
               <div className="flex justify-center mt-3">
-                <Button onClick={() => onSubmit}>Login</Button>
+                <Button type="submit" onClick={onSubmit}>
+                  Login
+                </Button>
               </div>
             </form>
           </Form>
