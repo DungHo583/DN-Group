@@ -13,31 +13,53 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      console.log("log check session ===", session);
-      console.log("log check token ===", token);
+      if (token) {
+        session.username = token.username
+      }
 
       return session
     },
 
     async jwt({ token, account }) {
-      console.log("log check token jwt ===", token);
-      console.log("log check account jwt ===", account);
+      if (account) {
+        const findAccount = await prisma.userAccount.findFirst({ where: { id: account.providerAccountId } })
+        if (findAccount) {
+          token.username = findAccount.userName
+        }
+      }
 
       return token
-    }
+    },
+
+    // async signIn({ user }) {
+    //   try {
+    //     if (user) {
+    //       const findAccount = await prisma.userAccount.findFirst({ where: { id: user.id } })
+
+    //       if (!findAccount) {
+    //         throw new Error("Account not found")
+    //       }
+    //     } else {
+    //       throw new Error("SignIn Auth Error")
+    //     }
+    //   } catch (error) {
+    //     console.log("[auth][signin][error]", error);
+    //   }
+    //   console.log("log check sign in ôke ===");
+
+    //   return true
+    // }
   },
   providers: [
     CredentialsProvider({
-      id: "login",
-      name: "login",
+      id: "login-cred",
+      name: "login-cred",
       credentials: {
         username: { label: "UserName", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
         const findAccount = await prisma.userAccount.findFirst({ where: { userName: credentials?.username } })
-
-        console.log("log check find account ===", findAccount);
 
         if (!findAccount) {
           throw new Error("Account not found")
@@ -47,13 +69,17 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Username or Password is wrong!")
         }
 
-        return findAccount
+        return {
+          id: findAccount.id,
+          email: "",
+          image: "",
+          name: "",
+        }
       },
     })
   ],
-
 }
 
-export function getAuthSession() {
+export async function getAuthSession() {
   return getServerSession(authOptions);
 }

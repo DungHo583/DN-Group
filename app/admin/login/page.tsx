@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/form";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   username: z
@@ -47,6 +49,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const [signInRes, setSignInRes] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,19 +63,27 @@ export default function LoginPage() {
   const onSubmit = form.handleSubmit(
     async (values: z.infer<typeof formSchema>) => {
       try {
-        const loginResult = await signIn("login", {
+        const loginResult = await signIn("login-cred", {
           username: values.username,
           password: values.password,
+          redirect: false,
         });
 
-        if (loginResult) {
-          router.push("/admin");
+        if (loginResult?.error) {
+          toast.error(`${decodeURIComponent(loginResult.error)}`);
+          router.refresh();
+        } else {
+          setSignInRes(true);
         }
       } catch (error) {
         console.log("error login ====", error);
       }
     }
   );
+
+  useEffect(() => {
+    if (signInRes) return router.push("/");
+  }, [signInRes]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
