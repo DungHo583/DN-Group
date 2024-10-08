@@ -1,7 +1,5 @@
 import { getAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Demo from "./demo";
-import React from "react";
 
 export default async function Home() {
   const session = await getAuthSession();
@@ -10,9 +8,5 @@ export default async function Home() {
     return redirect("/admin/login");
   }
 
-  return (
-    <>
-      <Demo></Demo>
-    </>
-  );
+  return redirect("/admin/site/dashboard");
 }

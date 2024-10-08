@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "@/public/globals.css";
 import { NextAuthProvider } from "@/components/nextauth-provider";
 import { ToastContainer } from "react-toastify";
@@ -16,11 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`antialiased`}
-        style={{ overflowX: "hidden" }}
-      >
-        <NextAuthProvider>{children}</NextAuthProvider>
+      <body className={`antialiased`} style={{ overflowX: "hidden" }}>
+        <NextAuthProvider>
+          <div className="">navbar</div>
+          {children}
+          <div className="">footer</div>
+        </NextAuthProvider>
         <ToastContainer />
       </body>
     </html>
