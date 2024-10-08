@@ -1,30 +1,24 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "@/public/globals.css";
-import { NextAuthProvider } from "@/components/nextauth-provider";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { getAuthSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { ReactNode } from "react";
 
-export const metadata: Metadata = {
-  title: "DN Group",
-  description: "Dự án của DN Group",
-};
+export default async function Layout({ children }: { children: ReactNode }) {
+  const session = await getAuthSession();
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+  if (!session) {
+    return redirect("/admin/login");
+  }
   return (
-    <html lang="en">
-      <body className={`antialiased`} style={{ overflowX: "hidden" }}>
-        <NextAuthProvider>
-          <div className="">navbar</div>
-          {children}
-          <div className="">footer</div>
-        </NextAuthProvider>
-        <ToastContainer />
-      </body>
-    </html>
+    <main className="h-screen w-full bg-white dark:bg-black">
+      <div className="grid grid-cols-7 gap-4">
+        <div className="col-span-1 border-r-2 border-gray-200">side bar</div>
+        <div className="col-span-6">
+          <div className="w-full">
+            <div className="w-full">header</div>
+            {children}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
