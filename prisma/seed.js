@@ -2,18 +2,32 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  const findAccount = await prisma.userAccount.findFirst({
-    where: { userName: "root" },
+  const findUser = await prisma.user.findFirst({
+    where: { email: "root@dnroot.com" },
   });
 
-  if (!findAccount) {
-    await prisma.userAccount.create({
+  if (!findUser) {
+    const createUser = await prisma.user.create({
       data: {
-        userName: "root",
-        password: "@Abc123",
-        hashPassword: "@Abc123",
+        email: "root@dnroot.com",
+        name: "Root",
       },
     });
+    const findAccount = await prisma.userAccount.findFirst({
+      where: { userName: "root@dnroot.com" },
+    });
+
+    if (!findAccount) {
+      await prisma.userAccount.create({
+        data: {
+          userName: "root@dnroot.com",
+          password: "@Abc123",
+          hashPassword: "@Abc123",
+          role: "ROOT",
+          userId: createUser.id,
+        },
+      });
+    }
   }
 }
 

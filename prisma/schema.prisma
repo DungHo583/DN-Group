@@ -18,8 +18,14 @@ model UserAccount {
   userName      String          @unique
   password      String
   hashPassword  String
+  // 
+  role          RoleAccountEnum @default(USER)
+  //
   accounts      Account[]
   sessions      Session[]
+  userId        String          @unique
+  user          User            @relation(fields: [userId], references: [id])
+  status        Boolean         @default(true)
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
@@ -80,4 +86,44 @@ model Authenticator {
   user UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
 
   @@id([userAccountId, credentialID])
+}
+
+model Department {
+  id      String  @id @default(cuid())
+  name    String
+  owner   String
+  address String?
+  phone   String?
+  status  Boolean @default(true)
+}
+
+enum RoleAccountEnum {
+  USER
+  ADMIN
+  ROOT
+}
+
+enum TypeUserEnum {
+  TEACHER
+  STUDENT
+  NORMAL
+}
+
+model User {
+  id          String       @id @default(cuid())
+  name        String
+  birthday    String?
+  sex         String?
+  email       String       @unique
+  phone       String?
+  avatar      String?
+  address     String?
+  parentInfo  Json?
+  note        String?
+  type        TypeUserEnum @default(NORMAL)
+  UserAccount UserAccount?
+  status      Boolean      @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

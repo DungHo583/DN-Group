@@ -1,20 +1,9 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
+import "@/public/globals.css";
 import { NextAuthProvider } from "@/components/nextauth-provider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "DN Group",
@@ -27,13 +16,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ overflowX: "hidden" }}
-      >
-        <NextAuthProvider>{children}</NextAuthProvider>
-        <ToastContainer />
+    <html lang="en" suppressHydrationWarning>
+      <body style={{ overflowX: "hidden" }}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+        >
+          <NextAuthProvider>{children}</NextAuthProvider>
+          <ToastContainer />
+        </ThemeProvider>
       </body>
     </html>
   );
